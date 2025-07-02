@@ -9,8 +9,11 @@ services:
     volumes:
       - papers_data:/app/papers
     restart: unless-stopped
-    networks:
-      - paper-network
+    # networks:
+    #   - paper-network  # Uncomment this line if you want to use a local network
+
+    #-------comment this if you want to use internet
+    network_mode: "host" # Use host network mode for direct access to the server
 
   agent:
     build:
@@ -20,11 +23,17 @@ services:
     ports:
       - "8002:8002"
     environment:
-      - MCP_SERVER_URL=http://mcp-server:8001
-      - DEEPSEEK_API_KEY=
+      #- MCP_SERVER_URL=http://mcp-server:8001.    # Use this if you want to connect to the server via Docker's internal network
+      - MCP_SERVER_URL=http://SERVER_MACHINE_IP:8001 # Replace with actual server IP if not using host network
+      - DEEPSEEK_API_KEY= <YOUR API KEY HERE> # Replace with your actual API key
     restart: unless-stopped
-    networks:
-      - paper-network
+
+    # networks:
+    #   - paper-network    # Uncomment this line if you want to use a local network
+
+
+    #-------comment this if you want to use internet
+    network_mode: "host"
 
 volumes:
   papers_data:
