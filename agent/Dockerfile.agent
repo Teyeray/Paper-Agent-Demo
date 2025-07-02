@@ -1,0 +1,31 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN pip install uv
+
+# Copy dependency files first
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies using uv sync
+RUN uv sync --frozen --no-dev
+
+# Copy agent files
+COPY agent/paper_agent ./paper_agent/
+COPY agent/start_agent.sh .
+
+# Make script executable
+RUN chmod +x start_agent.sh
+
+# Expose port
+EXPOSE 8002
+
+# Run the agent
+CMD ["./start_agent.sh"]

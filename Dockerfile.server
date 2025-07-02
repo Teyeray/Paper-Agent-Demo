@@ -1,0 +1,38 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN pip install uv
+
+# Copy dependency files first (for better Docker layer caching)
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies using uv sync
+RUN uv sync --frozen --no-dev
+
+# Copy server files
+COPY server.py .
+COPY start_server.sh .
+
+# Make script executable
+RUN chmod +x start_server.sh
+
+# Create papers directory
+RUN mkdir -p papers
+
+# Expose port
+EXPOSE 8001
+
+# # Health check
+# HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+#     CMD curl -f http://localhost:8001/sse || exit 1
+
+# Run the server
+CMD ["./start_server.sh"]
