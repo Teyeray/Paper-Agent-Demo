@@ -1,3 +1,4 @@
+
 # Paper Agent Demo / 论文智能助手演示
 
 A simple Q&A chatbot demo based on Google SDK + FastMCP that can retrieve papers using MCP tools.
@@ -23,28 +24,55 @@ paper_agent_demo/
 
 ## Quick Start / 快速开始
 
-### Using Docker Compose / 使用 Docker Compose
+### Docker 容器化部署 / Docker Containerized Deployment
 
-```bash
-docker-compose up
-```
+使用 Docker 在本地启动 MCP Server 和 Agent：
 
-### Manual Setup / 手动设置
+1. 配置 API Key / Configure API Key：
+   在 `docker-compose.yml` 文件中填入 DeepSeek API Key：
 
-1. Install dependencies / 安装依赖：
-```bash
-uv pip install -r pyproject.toml
-```
+   ```yaml
+   environment:
+     - MCP_SERVER_URL=http://mcp-server:50003
+     - DEEPSEEK_API_KEY=your_deepseek_api_key_here  # 填入您的 DeepSeek API Key
+   ```
+2. 启动服务 / Start Services：
 
-2. Start server / 启动服务器：
-```bash
-./start_server.sh
-```
+   ```bash
+   docker-compose up
+   ```
+3. 访问应用 / Access Application：
+   打开浏览器访问 `http://localhost:50002`
 
-3. Start agent / 启动智能助手：
-```bash
-cd agent && ./start_agent.sh
-```
+### 分离式部署 / Separate Deployment
+
+MCP Server 和 Agent 分开启动：
+
+1. 配置环境 / Setup Environment：
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. 配置 API Key / Configure API Key：
+   在 `agent/paper_agent/agent.py` 中填入 DeepSeek API Key：
+
+   ```python
+   #Use deepseek
+   os.environ['DEEPSEEK_API_KEY'] = os.getenv('DEEPSEEK_API_KEY', "your_deepseek_api_key_here")  # 填入您的 DeepSeek API Key
+   ```
+3. 启动 MCP Server / Start MCP Server：
+
+   ```bash
+   python server.py
+   ```
+4. 启动 Agent / Start Agent (在另一个终端):
+
+   ```bash
+   cd agent
+   adk web
+   ```
+5. 访问应用 / Access Application：
+   打开浏览器访问 `http://localhost:50002`
 
 ## Features / 功能特性
 
@@ -61,6 +89,7 @@ This project uses uv for dependency management. Check `.python-version` for Pyth
 本项目使用 uv 进行依赖管理，Python 版本要求见 `.python-version` 文件。
 
 ### Tech Stack / 技术栈
+
 - Google SDK
 - FastMCP
 - Python 3.x
@@ -68,7 +97,7 @@ This project uses uv for dependency management. Check `.python-version` for Pyth
 
 ## Author / 作者
 
-**Ray Yang**  
+**Ray Yang**
 Created / 创建时间：2025
 
 ## License / 许可证
@@ -77,7 +106,5 @@ MIT License
 
 ---
 
-*A simple paper retrieval chatbot demo / 简单的论文检索聊天机器人演示*  
+*A simple paper retrieval chatbot demo / 简单的论文检索聊天机器人演示*
 *Created with ❤️ by Ray Yang*
-
-
