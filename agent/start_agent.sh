@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "🚀 Starting ADK Web Interface..."
-export MCP_SERVER_URL=${MCP_SERVER_URL:-"http://localhost:8001"}
+export MCP_SERVER_URL=${MCP_SERVER_URL:-"http://localhost:50003"}
 # 激活 uv 创建的虚拟环境
 source .venv/bin/activate
 
@@ -34,5 +34,5 @@ ls -la
 ls -la paper_agent/
 
 # 启动 ADK Web Interface
-echo "----------Starting ADK Web on 0.0.0.0:8002...------------"
-adk web --host 0.0.0.0 --port 8002
+echo "----------Starting ADK Web on 0.0.0.0:50002...------------"
+adk web --host 0.0.0.0 --port 50002
