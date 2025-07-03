@@ -3,19 +3,22 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm main" > /etc/apt/sources.list && \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-updates main" >> /etc/apt/sources.list && \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security bookworm-security main" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y \
     gcc \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
-RUN pip install uv
+RUN pip install uv -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-# Copy dependency files first
-COPY pyproject.toml uv.lock ./
+# Copy dependency files first (for better Docker layer caching)
+COPY requirements.txt ./
 
-# Install dependencies using uv sync
-RUN uv sync --frozen --no-dev
+# Install dependencies
+RUN uv pip install --system -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Copy agent files
 COPY agent/paper_agent ./paper_agent/
