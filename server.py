@@ -3,42 +3,42 @@ import json
 import os
 from typing import List
 from mcp.server.fastmcp import FastMCP
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import uvicorn
+import threading
 
 PAPER_DIR = "papers"
 
 # Initialize FastMCP server
-#mcp = FastMCP("research", host = "localhost", port=50001)
-mcp = FastMCP("research", host = "0.0.0.0", port=50003)
+mcp = FastMCP("research", host="0.0.0.0", port=50003)
+
+# Add HTTP API support
+app = FastAPI(title="Paper Research MCP Server")
+
+# Request models
+class SearchRequest(BaseModel):
+    topic: str
+    max_results: int = 5
+
+class ExtractRequest(BaseModel):
+    paper_id: str
 
 @mcp.tool()
 def search_papers(topic: str, max_results: int = 5) -> List[str]:
-    """
-    Search for papers on arXiv based on a topic and store their information.
-
-    Args:
-        topic: The topic to search for
-        max_results: Maximum number of results to retrieve (default: 5)
-
-    Returns:
-        List of paper IDs found in the search
-    """
-
+    """Search for papers on arXiv based on a topic and store their information."""
     # Use arxiv to find the papers
     client = arxiv.Client()
-
-    # Search for the most relevant articles matching the queried topic
     search = arxiv.Search(
         query=topic,
         max_results=max_results,
         sort_by=arxiv.SortCriterion.Relevance
     )
-
     papers = client.results(search)
 
     # Create directory for this topic
     path = os.path.join(PAPER_DIR, topic.lower().replace(" ", "_"))
     os.makedirs(path, exist_ok=True)
-
     file_path = os.path.join(path, "papers_info.json")
 
     # Try to load existing papers info
@@ -66,21 +66,11 @@ def search_papers(topic: str, max_results: int = 5) -> List[str]:
         json.dump(papers_info, json_file, indent=2)
 
     print(f"Results are saved in: {file_path}")
-
     return paper_ids
 
 @mcp.tool()
 def extract_info(paper_id: str) -> str:
-    """
-    Search for information about a specific paper across all topic directories.
-
-    Args:
-        paper_id: The ID of the paper to look for
-
-    Returns:
-        JSON string with paper information if found, error message if not found
-    """
-
+    """Search for information about a specific paper across all topic directories."""
     for item in os.listdir(PAPER_DIR):
         item_path = os.path.join(PAPER_DIR, item)
         if os.path.isdir(item_path):
@@ -94,10 +84,43 @@ def extract_info(paper_id: str) -> str:
                 except (FileNotFoundError, json.JSONDecodeError) as e:
                     print(f"Error reading {file_path}: {str(e)}")
                     continue
-
     return f"There's no saved information related to paper {paper_id}."
 
+# HTTP endpoints
+@app.post("/tools/search_papers")
+async def api_search_papers(request: SearchRequest):
+    """HTTP endpoint for searching papers."""
+    try:
+        result = search_papers(request.topic, request.max_results)
+        return {"result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/tools/extract_info")
+async def api_extract_info(request: ExtractRequest):
+    """HTTP endpoint for extracting paper info."""
+    try:
+        result = extract_info(request.paper_id)
+        return {"result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "healthy"}
+
+def run_http_server():
+    """Run the HTTP server."""
+    uvicorn.run(app, host="0.0.0.0", port=50004)
+
 if __name__ == "__main__":
-    # Initialize and run the server
-    #mcp.run(transport='streamable-http')
+    # Start HTTP server in a separate thread
+    http_thread = threading.Thread(target=run_http_server, daemon=True)
+    http_thread.start()
+    
+    print("HTTP API server started on port 50004")
+    print("MCP SSE server starting on port 50003")
+    
+    # Run MCP server
     mcp.run(transport="sse")

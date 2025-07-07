@@ -21,7 +21,7 @@ os.environ["AZURE_OPENAI_API_KEY"] = os.getenv("AZURE_OPENAI_API_KEY", "")
 os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"] = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "")
 
 # 根据环境选择 MCP 服务器地址
-mcp_server_url = os.getenv("MCP_SERVER_URL", "http://localhost:50003")
+mcp_server_url = os.getenv("MCP_SERVER_URL", "http://localhost:8001")
 print(f"Connecting to MCP server: {mcp_server_url}")
 
 # Configure connection
