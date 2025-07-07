@@ -119,7 +119,7 @@ if __name__ == "__main__":
     http_thread = threading.Thread(target=run_http_server, daemon=True)
     http_thread.start()
     
-    print("HTTP API server started on port 50004")
+    print("HTTP API server started on port 50004")   #use for camel
     print("MCP SSE server starting on port 50003")
     
     # Run MCP server
