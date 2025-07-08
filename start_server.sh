@@ -1,17 +1,31 @@
 #!/bin/bash
 
-echo "🚀 Starting MCP Server..."
+# 服务器启动脚本
+# 用法: ./start_server.sh [port] [mode]
+# 示例: ./start_server.sh 50003 http
 
-# 激活 uv 创建的虚拟环境
-source .venv/bin/activate
+# 默认参数
+PORT=${1:-50003}
+MODE=${2:-http}
 
-# 检查依赖是否安装
-echo "📦 Checking dependencies..."
-python -c "import arxiv, mcp; print('✅ Dependencies OK')" || {
-    echo "❌ Dependencies missing!"
+# 检查参数
+if [[ ! "$MODE" =~ ^(http|sse|stdio)$ ]]; then
+    echo "错误: 传输模式必须是 http, sse 或 stdio"
+    echo "用法: $0 [port] [mode]"
     exit 1
-}
+fi
 
-# 启动服务器
-echo "Starting server on 0.0.0.0:8001..."
-python server.py
+# 检查端口是否为数字
+if ! [[ "$PORT" =~ ^[0-9]+$ ]]; then
+    echo "错误: 端口必须是数字"
+    echo "用法: $0 [port] [mode]"
+    exit 1
+fi
+
+echo "启动 MCP 服务器..."
+echo "端口: $PORT"
+echo "模式: $MODE"
+
+# 激活虚拟环境并启动服务器
+source .venv/bin/activate
+uv run server_camel.py $MODE 

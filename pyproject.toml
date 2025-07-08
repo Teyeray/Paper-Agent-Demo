@@ -1,0 +1,18 @@
+[project]
+name = "paper-agent-demo-camel"
+version = "0.1.0"
+description = "paper-agent-demo port:50003 camel-ai + fastmcp"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "arxiv>=2.2.0",
+    "camel-ai>=0.2.70",
+    "fastapi>=0.116.0",
+    "fastmcp>=2.10.2",
+    "starlette>=0.46.2",
+    "uvicorn>=0.35.0",
+]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true

@@ -19,25 +19,16 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen
 
 # 复制应用代码
-COPY server_camel.py ./
-COPY start_server.sh ./
-
-# 创建papers目录
-RUN mkdir -p papers
+COPY agent_camel.py ./
+COPY start_agent.sh ./
 
 # 设置执行权限
-RUN chmod +x start_server.sh
-
-# 暴露端口
-EXPOSE 50003
+RUN chmod +x start_agent.sh
 
 # 设置环境变量
-ENV PAPER_DIR=/app/papers
-ENV PORT=50003
-
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:50003/health || exit 1
+ENV DEEPSEEK_API_KEY=""
+ENV MCP_URL="http://localhost:50003/my-custom-path/"
+ENV MCP_MODE="http"
 
 # 启动命令
-CMD ["./start_server.sh", "50003", "http"] 
+CMD ["./start_agent.sh", "$DEEPSEEK_API_KEY", "$MCP_URL", "$MCP_MODE"] 

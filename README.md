@@ -1,187 +1,208 @@
+# Paper Agent Demo - Camel AI + FastMCP
 
-# Paper Agent Demo / 论文智能助手演示
-
-A simple Q&A chatbot demo based on Google SDK + FastMCP that can retrieve papers using MCP tools.
-
-一个基于 Google SDK + FastMCP 的简单问答机器人演示，可以使用 MCP 工具来检索论文。
+基于 Camel AI 和 FastMCP 的论文搜索和智能代理系统。
 
 ## 项目结构
 
 ```
-
-paper_agent_demo/
-
-├── agent/                  # Agent 相关代码
-
-│   ├── paper_agent/       # 核心 agent 模块
-
-│   ├── Dockerfile.agent   # Agent Docker 配置
-
-│   └── start_agent.sh     # Agent 启动脚本
-
-├── papers/                # 论文存储目录
-
-├── server.py              # 主服务器
-
-├── pyproject.toml         # Python 项目配置
-
-├── uv.lock               # 依赖锁定文件
-
-├── docker-compose.yml    # Docker Compose 配置
-
-├── Dockerfile.server     # 服务器 Docker 配置
-
-└── start_server.sh       # 服务器启动脚本
-
+Paper-Agent-Demo/
+├── server_camel.py      # MCP 服务器，提供论文搜索和提取功能
+├── agent_camel.py       # Camel AI 智能代理
+├── pyproject.toml       # 项目依赖配置
+├── uv.lock             # 依赖锁定文件
+├── start_server.sh      # 服务器启动脚本
+├── start_agent.sh       # 代理启动脚本
+├── Dockerfile.server    # 服务器 Docker 镜像
+├── Dockerfile.agent     # 代理 Docker 镜像
+└── docker-compose.yml   # Docker Compose 配置
 ```
 
-## Quick Start / 快速开始
+## 功能特性
 
-### Docker 容器化部署 / Docker Containerized Deployment
+- **论文搜索**: 基于 arXiv 的智能论文搜索
+- **信息提取**: 从已搜索的论文中提取详细信息
+- **智能代理**: 基于 Camel AI 的对话式智能代理
+- **MCP 协议**: 支持多种传输模式 (HTTP/SSE/STDIO)
 
-使用 Docker 在本地启动 MCP Server 和 Agent：
+## 环境要求
 
-1. 配置 API Key / Configure API Key：
+- Python 3.11+
+- uv 包管理器
+- DeepSeek API Key
 
-   在 `docker-compose.yml` 文件中填入 DeepSeek API Key：
+## 本地安装
 
-   ```yaml
-
-   ```
-
-environment:
-
-- MCP_SERVER_URL=http://mcp-server:50003
-- DEEPSEEK_API_KEY=your_deepseek_api_key_here# 填入您的 DeepSeek API Key
-
-  ```
-
-  ```
-
-2. 启动服务 / Start Services：
-
-   ```bash
-
-   ```
-
-cd exp/mcp_server_exp/paper_search_demo
-
-docker compose up
-
+1. **克隆项目**
+```bash
+git clone <repository-url>
+cd Paper-Agent-Demo
 ```
 
-3. 访问应用 / Access Application：
-
-   打开浏览器访问 `http://localhost:50002`
-
-
-### 分离式部署 / Separate Deployment
-
-
-MCP Server 和 Agent 分开启动：
-
-
-1. 配置环境 / Setup Environment：
-
-
-   ```bash
-
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-
+2. **安装依赖**
+```bash
+uv sync
 ```
 
-2. 配置 API Key / Configure API Key：
-
-   在 `agent/paper_agent/agent.py` 中填入 DeepSeek API Key：
-
-   ```python
-
-   ```
-
-#Use deepseek
-
-os.environ['DEEPSEEK_API_KEY'] = os.getenv('DEEPSEEK_API_KEY', "your_deepseek_api_key_here")  # 填入您的 DeepSeek API Key
-
+3. **配置环境**
+```bash
+# 激活虚拟环境
+source .venv/bin/activate
 ```
 
-3. 启动 MCP Server / Start MCP Server：
+## 本地运行
 
-
-   ```bash
-
-python server.py
-
-```
-
-4. 启动 Agent / Start Agent (在另一个终端):
-
-   ```bash
-
-   ```
-
-cd exp/mcp_server_exp/paper_search_demo/agent
-
-adk web
-
-```
-
-5. 访问应用 / Access Application：
-
-   打开浏览器访问 `http://localhost:50002`
-
-
-6. 启动mcp inspector
+### 启动服务器
 
 ```bash
+# 使用启动脚本
+./start_server.sh 50003 http
 
-npx@modelcontextprotocol/inspector
-
+# 或直接运行
+source .venv/bin/activate
+uv run server_camel.py http
 ```
 
-- 打开pre-filled链接：
+**参数说明:**
+- `port`: 服务器端口 (默认: 50003)
+- `mode`: 传输模式 (http/sse/stdio)
 
-`http://localhost:6274/?MCP_PROXY_AUTH_TOKEN=xxxx`
+### 启动代理
 
-- transport type:sse
-- url填入(相同局域网内两台开发机，首先暴露50003端口)：http://局域网ip:50003/sse
+```bash
+# 使用启动脚本
+./start_agent.sh YOUR_DEEPSEEK_API_KEY http://localhost:50003/my-custom-path/ http
 
-## Features / 功能特性
+# 或直接运行
+source .venv/bin/activate
+uv run agent_camel.py
+```
 
--**Paper Retrieval**: Search and retrieve academic papers using MCP tools / **论文检索**：使用 MCP 工具搜索和检索学术论文
+**参数说明:**
+- `api_key`: DeepSeek API 密钥
+- `url`: MCP 服务器地址
+- `mode`: 传输模式
 
--**Q&A Chat**: Interactive chatbot powered by Google SDK / **问答对话**：基于 Google SDK 的交互式聊天机器人
+## Docker 部署
 
--**FastMCP Integration**: Seamless integration with FastMCP framework / **FastMCP 集成**：与 FastMCP 框架无缝集成
+### 构建镜像
 
--**Docker Support**: Containerized deployment / **Docker 支持**：容器化部署
+```bash
+# 构建服务器镜像
+docker build -f Dockerfile.server -t paper-agent-server .
 
--**Modular Architecture**: Clean and extensible design / **模块化架构**：清晰可扩展的设计
+# 构建代理镜像
+docker build -f Dockerfile.agent -t paper-agent-agent .
+```
 
-## Development / 开发
+### 使用 Docker Compose
 
-This project uses uv for dependency management. Check `.python-version` for Python version requirements.
+```bash
+# 启动完整服务
+docker-compose up -d
 
-本项目使用 uv 进行依赖管理，Python 版本要求见 `.python-version` 文件。
+# 查看日志
+docker-compose logs -f
 
-### Tech Stack / 技术栈
+# 停止服务
+docker-compose down
+```
 
-- Google SDK
-- FastMCP
-- Python 3.x
-- Docker
+### 单独运行容器
 
-## Author / 作者
+```bash
+# 运行服务器容器
+docker run -d \
+  --name paper-server \
+  -p 50003:50003 \
+  -v $(pwd)/papers:/app/papers \
+  paper-agent-server
 
-**Ray Yang**
+# 运行代理容器
+docker run -it \
+  --name paper-agent \
+  -e DEEPSEEK_API_KEY=your_api_key \
+  -e MCP_URL=http://host.docker.internal:50003/my-custom-path/ \
+  paper-agent-agent
+```
 
-Created / 创建时间：2025
+## 使用示例
 
-## License / 许可证
+### 1. 搜索论文
+
+```python
+# 通过代理搜索论文
+User: 搜索关于"machine learning"的论文，最多返回3篇
+```
+
+### 2. 提取论文信息
+
+```python
+# 提取特定论文的详细信息
+User: 提取论文 "2301.12345" 的信息
+```
+
+### 3. 智能对话
+
+```python
+# 与代理进行智能对话
+User: 请分析一下最近关于深度学习的趋势
+```
+
+## 配置说明
+
+### 环境变量
+
+- `DEEPSEEK_API_KEY`: DeepSeek API 密钥
+- `MCP_URL`: MCP 服务器地址
+- `PAPER_DIR`: 论文存储目录 (默认: papers)
+- `PORT`: 服务器端口 (默认: 50003)
+
+### 传输模式
+
+- `http`: HTTP 传输模式
+- `sse`: Server-Sent Events 模式
+- `stdio`: 标准输入输出模式
+
+## 开发说明
+
+### 项目依赖
+
+主要依赖包：
+- `camel-ai>=0.2.70`: Camel AI 框架
+- `fastmcp>=2.10.2`: FastMCP 协议实现
+- `arxiv>=2.2.0`: arXiv API 客户端
+- `fastapi>=0.116.0`: Web 框架
+
+### 代码结构
+
+- `server_camel.py`: MCP 服务器实现，提供论文搜索和提取工具
+- `agent_camel.py`: Camel AI 智能代理，支持与 MCP 服务器交互
+
+## 故障排除
+
+### 常见问题
+
+1. **依赖安装失败**
+   ```bash
+   uv sync --reinstall
+   ```
+
+2. **API 密钥错误**
+   - 检查 DeepSeek API 密钥是否正确
+   - 确认 API 密钥有足够的配额
+
+3. **端口冲突**
+   - 修改启动脚本中的端口参数
+   - 检查端口是否被其他服务占用
+
+4. **Docker 网络问题**
+   - 使用 `host.docker.internal` 访问宿主机服务
+   - 检查 Docker 网络配置
+
+## 许可证
 
 MIT License
 
----
+## 贡献
 
-*A simple paper retrieval chatbot demo / 简单的论文检索聊天机器人演示*
-
-*Created with ❤️ by Ray Yang*
+欢迎提交 Issue 和 Pull Request！
