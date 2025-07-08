@@ -1,1 +1,6 @@
-docker-compose.yml
+.venv
+.python-version
+deploy.sh
+__pycache__
+paper
+

@@ -566,6 +566,7 @@ dependencies = [
     { name = "camel-ai" },
     { name = "fastapi" },
     { name = "fastmcp" },
+    { name = "python-dotenv" },
     { name = "starlette" },
     { name = "uvicorn" },
 ]
@@ -576,6 +577,7 @@ requires-dist = [
     { name = "camel-ai", specifier = ">=0.2.70" },
     { name = "fastapi", specifier = ">=0.116.0" },
     { name = "fastmcp", specifier = ">=2.10.2" },
+    { name = "python-dotenv", specifier = ">=1.1.1" },
     { name = "starlette", specifier = ">=0.46.2" },
     { name = "uvicorn", specifier = ">=0.35.0" },
 ]

@@ -7,12 +7,36 @@ from fastmcp.client.transports import StreamableHttpTransport, SSETransport
 from fastmcp import Client
 import asyncio
 import os
-
+from dotenv import load_dotenv
 from camel.toolkits import MCPToolkit
+import time
+import requests
 
 # 从环境变量获取配置
+load_dotenv()
+
+def ensure_mcp_url():
+    url = os.getenv("MCP_URL", "")
+    while True:
+        if url:
+            try:
+                # 测试是否连通
+                r = requests.get(url, timeout=3)
+                if r.status_code < 500:  # MCP 服务一般返回 200/400 系列
+                    break  # 合法可用，跳出循环
+                else:
+                    print(f"[Warning] MCP_URL responded with status code {r.status_code}")
+            except Exception as e:
+                print(f"[Warning] MCP_URL not reachable: {e}")
+        
+        # 如果 url 无效或连不上，要求手动输入
+        url = input("Please input valid MCP_URL (e.g. http://localhost:50003/...): ").strip()
+
+    os.environ["MCP_URL"] = url
+    return url
+
+mcp_url = ensure_mcp_url()
 deepseek_api_key = os.getenv("DEEPSEEK_API_KEY", "YOUR_DEEPSEEK_API_KEY")
-mcp_url = os.getenv("MCP_URL", "http://localhost:50003/my-custom-path/")
 mcp_mode = os.getenv("MCP_MODE", "http")
 
 async def main():

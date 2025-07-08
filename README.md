@@ -47,6 +47,7 @@ uv sync
 ```bash
 # 激活虚拟环境
 source .venv/bin/activate
+source .env
 ```
 
 ## 本地运行

@@ -10,8 +10,9 @@ from starlette.responses import PlainTextResponse
 import uvicorn
 import threading
 import sys
-
+from dotenv import load_dotenv
 # Initialize FastMCP server
+load_dotenv()
 mcp = FastMCP()
 PAPER_DIR = os.getenv("PAPER_DIR", "papers")
 

@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # MCP 服务器服务
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: paper-agent-server
+    ports:
+      - "50003:50003"
+    volumes:
+      - ./papers:/app/papers
+    environment:
+      - PAPER_DIR=/app/papers
+      - PORT=50003
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:50003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Camel AI 代理服务
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: paper-agent-agent
+    depends_on:
+      server:
+        condition: service_healthy
+    environment:
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - MCP_URL=http://server:50003/my-custom-path/
+      - MCP_MODE=http
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  papers: 
