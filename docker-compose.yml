@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.server
-    container_name: paper-agent-server
+    container_name: camel-server
     ports:
       - "50003:50003"
     volumes:
@@ -27,7 +27,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.agent
-    container_name: paper-agent-agent
+    container_name: camel-agent
     depends_on:
       server:
         condition: service_healthy
